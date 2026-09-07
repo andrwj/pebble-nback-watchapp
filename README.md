@@ -24,11 +24,38 @@
   - **Number** (1–9 Digit recall)
   - **Letter** (8-Letter phonetic working memory)
   - **Vibration** (Haptic pulse pattern matching)
-  - **Audio** (Morse tone sound synthesis)
+  - **Audio** (26-Letter A–Z International Morse code audio tone synthesis)
 - **Adaptive Auto-Leveling**: Automatically adjusts $n$-Back difficulty ($n=1$ to $n=7$) based on real-time performance thresholds.
 - **Strict FSM Architecture**: Zero state-bypass execution model guaranteeing lifecycle purity and instant responsiveness.
 - **OPFS Local Sandbox**: Training session histories and player profiles are saved inside the mobile browser's **Origin Private File System (OPFS)** for private, robust local storage.
-- **Global Leaderboard Sync**: Upload authenticated cognitive scores via explicit `PUT` requests to the global competitive leaderboard (`https://andrwj.com/pebble-nback-watchapp`).
+
+---
+
+## Audio Stimulus: Morse Code Sound Patterns
+
+The audio modality utilizes the Pebble Time 2 (Emery) built-in speaker to synthesize International Morse Code for all 26 English letters (A–Z).
+
+### Sound Synthesis Parameters
+
+| Parameter | Specification | Description |
+| :--- | :--- | :--- |
+| **Tone Pitch** | 523 Hz (MIDI Note 72, C5) | Pure Sine Wave (`SpeakerWaveformSine`) |
+| **Dot (`·`) Duration** | 65 ms | Short tone pulse |
+| **Dash (`—`) Duration** | 195 ms | Long tone pulse ($3 \times \text{Dot}$) |
+| **Element Gap** | 50 ms | Silence between dots and dashes within a letter |
+| **Volume** | 85 / 100 | Internal raw tone generator |
+
+### Letter-to-Sound Pattern Mapping (A–Z)
+
+| Letter | Sound Pattern | Letter | Sound Pattern | Letter | Sound Pattern | Letter | Sound Pattern |
+| :---: | :--- | :---: | :--- | :---: | :--- | :---: | :--- |
+| **A** | `· —` | **H** | `· · · ·` | **O** | `— — —` | **V** | `· · · —` |
+| **B** | `— · · ·` | **I** | `· ·` | **P** | `· — — ·` | **W** | `· — —` |
+| **C** | `— · — ·` | **J** | `· — — —` | **Q** | `— — · —` | **X** | `— · · —` |
+| **D** | `— · ·` | **K** | `— · —` | **R** | `· — ·` | **Y** | `— · — —` |
+| **E** | `·` | **L** | `· — · ·` | **S** | `· · ·` | **Z** | `— — · ·` |
+| **F** | `· · — ·` | **M** | `— —` | **T** | `—` | | |
+| **G** | `— — ·` | **N** | `— ·` | **U** | `· · —` | | |
 
 ---
 
