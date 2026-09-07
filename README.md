@@ -1,7 +1,7 @@
 # nBack: Advanced Working Memory Training (Emery Platform)
 
 [![AppStore](https://img.shields.io/badge/RePebble-AppStore-red.svg)](https://apps.repebble.com/0fa107ae30f643e2b551a71b)
-[![Version](https://img.shields.io/badge/Version-1.99.99-indigo.svg)](https://github.com/andrwj/pebble-nback-watchapp)
+[![Version](https://img.shields.io/badge/Version-1.99.100-indigo.svg)](https://github.com/andrwj/pebble-nback-watchapp)
 
 <p align="center">
   <img src="./screenshot.png" alt="nBack on Pebble Time 2 (Emery)" width="320"/>
