@@ -510,7 +510,7 @@
       <div class="card-label" data-i18n="deviceLabel">Pebble Device Identifier</div>
       <div class="card-desc" data-i18n="deviceDesc">Unique UUID provided by Pebble API for authentic device recognition.</div>
       <div class="device-badge">
-        <span class="device-uuid-text" id="device_uuid_display">6084f459-8025-4f7a-8639-be3cfb9ae028</span>
+        <span class="device-uuid-text" id="device_uuid_display">Checking device...</span>
       </div>
     </div>
 
@@ -567,7 +567,6 @@
   </div>
 
   <script>
-    var APP_UUID_DEFAULT = '6084f459-8025-4f7a-8639-be3cfb9ae028';
     var OPFS_PROFILE_FILE = 'player_profile.json';
     var OPFS_HISTORY_FILE = 'game_history.json';
 
@@ -659,13 +658,21 @@
       }, duration || 2500);
     }
 
+    // Unique Device Identifier Generator
+    function generateDeviceUuid() {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     // Application State
     var appState = {
       playerName: '',
-      deviceUuid: APP_UUID_DEFAULT,
-      appUuid: APP_UUID_DEFAULT,
-      watchToken: '',
-      accountToken: '',
+      deviceUuid: '',
       sessions: [],
       opfsSupported: false,
       opfsRoot: null
@@ -848,10 +855,11 @@
     // Load initial data from Hash & OPFS
     async function loadData() {
       var opfsOk = await initOpfs();
+      var profile = null;
 
       if (opfsOk) {
         // Read Profile from OPFS
-        var profile = await readOpfsFile(OPFS_PROFILE_FILE);
+        profile = await readOpfsFile(OPFS_PROFILE_FILE);
         if (profile && profile.playerName) {
           appState.playerName = profile.playerName;
           document.getElementById('player_name_input').value = profile.playerName;
@@ -864,6 +872,8 @@
         }
       }
 
+      var incomingDeviceUuid = '';
+
       // Parse Hash parameters from PebbleKit JS
       try {
         var hash = window.location.hash.substring(1);
@@ -871,13 +881,7 @@
           var decoded = decodeURIComponent(hash);
           var params = JSON.parse(decoded);
 
-          if (params.appUuid) appState.appUuid = params.appUuid;
-          if (params.watchToken) appState.watchToken = params.watchToken;
-          if (params.accountToken) appState.accountToken = params.accountToken;
-
-          var displayId = appState.accountToken || appState.watchToken || appState.appUuid;
-          appState.deviceUuid = displayId;
-          document.getElementById('device_uuid_display').textContent = displayId;
+          if (params.deviceUuid) incomingDeviceUuid = params.deviceUuid;
 
           if (params.sessions && Array.isArray(params.sessions)) {
             mergeSessions(params.sessions);
@@ -891,6 +895,23 @@
         }
       } catch (e) {
         console.warn('Error reading config hash:', e);
+      }
+
+      // Determine distinct device UUID:
+      // Priority 1: Passed from PebbleKit JS (watchToken / accountToken / PKJS device UUID)
+      // Priority 2: Stored in local OPFS profile
+      // Priority 3: Newly generated device UUID
+      var finalDeviceUuid = incomingDeviceUuid || (profile && profile.deviceUuid) || generateDeviceUuid();
+      appState.deviceUuid = finalDeviceUuid;
+      document.getElementById('device_uuid_display').textContent = finalDeviceUuid;
+
+      // Auto-save device UUID in OPFS profile if missing
+      if (opfsOk && (!profile || !profile.deviceUuid)) {
+        await writeOpfsFile(OPFS_PROFILE_FILE, {
+          playerName: appState.playerName,
+          deviceUuid: finalDeviceUuid,
+          lastUpdated: new Date().toISOString()
+        });
       }
 
       renderOverview();
@@ -910,7 +931,6 @@
       var profileData = {
         playerName: name,
         deviceUuid: appState.deviceUuid,
-        appUuid: appState.appUuid,
         lastUpdated: new Date().toISOString()
       };
 
