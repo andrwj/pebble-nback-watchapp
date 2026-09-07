@@ -1,6 +1,7 @@
 # nBack: Advanced Working Memory Training (Emery Platform)
 
-[![Version](https://img.shields.io/badge/Version-1.2.0-indigo.svg)](https://github.com/andrwj/pebble-nback-watchapp)
+[![AppStore](https://img.shields.io/badge/RePebble-AppStore-red.svg)](https://apps.repebble.com/0fa107ae30f643e2b551a71b)
+[![Version](https://img.shields.io/badge/Version-1.99.99-indigo.svg)](https://github.com/andrwj/pebble-nback-watchapp)
 
 <p align="center">
   <img src="./screenshot.png" alt="nBack on Pebble Time 2 (Emery)" width="320"/>
@@ -9,6 +10,8 @@
 ## Overview
 
 **nBack** is an ultra-precise, multimodal cognitive working memory training application designed exclusively for **Pebble Time 2 (Emery Platform)**. It harnesses the full capabilities of Emery's hardware—200×228 64-color Sharp MIP LCD, capacitive touchscreen, tactile 4-button input, and built-in raw tone generator—to deliver rigorous Dual, Triple, and Multi-modal $n$-Back challenges conforming to modern cognitive science standards.
+
+- **AppStore nBack Page**: [https://apps.repebble.com/0fa107ae30f643e2b551a71b](https://apps.repebble.com/0fa107ae30f643e2b551a71b)
 
 ---
 
