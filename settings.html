@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>nBack Training Profile & Statistics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <style>
+    :root {
+      --bg-primary: #07090e;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-sub: rgba(30, 41, 59, 0.6);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(99, 102, 241, 0.3);
+      --accent: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 55%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 55%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      padding: 20px 16px 130px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 16px 0 24px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid var(--border-accent);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #818cf8;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .lang-switcher {
+      display: inline-flex;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 2px;
+    }
+
+    .lang-btn {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin: 24px 0 10px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title span.badge {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      text-transform: none;
+    }
+
+    /* Card Component */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 16px 0;
+    }
+
+    /* Inputs */
+    .input-group {
+      margin-top: 10px;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .device-badge {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .device-uuid-text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: var(--accent-cyan);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Metric Grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .metric-box {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-size: 22px;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2px;
+    }
+
+    .metric-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* History List */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .history-item {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .history-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .history-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .nback-tag {
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid var(--border-accent);
+      color: #a5b4fc;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .history-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modality-badges {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .mod-pill {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .history-score {
+      text-align: right;
+    }
+
+    .accuracy-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--success);
+    }
+
+    .accuracy-bar-bg {
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+
+    .accuracy-bar-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: 2px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px 0;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    /* Storage Indicator */
+    .storage-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    .status-dot.error {
+      background: var(--danger);
+      box-shadow: 0 0 6px var(--danger);
+    }
+
+    .btn-action-outline {
+      padding: 7px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .btn-action-outline:hover {
+      color: var(--text-main);
+      border-color: var(--text-dim);
+    }
+
+    /* Error Alert */
+    .opfs-alert {
+      display: none;
+      padding: 14px 16px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      color: #fca5a5;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* Fixed Bottom Action Bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-color);
+      z-index: 100;
+    }
+
+    .bottom-content {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-cancel {
+      background: rgba(51, 65, 85, 0.8);
+      color: var(--text-main);
+    }
+
+    .btn-save {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-accent);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      z-index: 200;
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="header-badge">Emery Platform • v1.2.0</div>
+        <div class="lang-switcher">
+          <button class="lang-btn" id="lang-ko" onclick="setLanguage('ko')">KO</button>
+          <button class="lang-btn" id="lang-en" onclick="setLanguage('en')">EN</button>
+        </div>
+      </div>
+      <h1 data-i18n="title">nBack Profile</h1>
+      <p data-i18n="subtitle">Working Memory Training History & Local OPFS Storage</p>
+    </div>
+
+    <!-- OPFS Browser Support Alert -->
+    <div class="opfs-alert" id="opfs_error_alert">
+      <strong>⚠️ OPFS Unsupported:</strong> <span data-i18n="opfsErrorMsg">Your mobile browser does not support the Origin Private File System (OPFS). Training history cannot be saved to private local files.</span>
+    </div>
+
+    <!-- Section 1: Player Profile & Device -->
+    <div class="section-title">
+      <span data-i18n="secProfile">Player Profile</span>
+      <span class="badge" id="storage_badge">OPFS Local Engine</span>
+    </div>
+    <div class="card">
+      <div class="card-label" data-i18n="playerNameLabel">Player Name</div>
+      <div class="card-desc" data-i18n="playerNameDesc">Your personal identifier stored strictly in local OPFS.</div>
+      <div class="input-group">
+        <input type="text" class="text-input" id="player_name_input" maxlength="24" placeholder="Enter player name..." autocomplete="off">
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-label" data-i18n="deviceLabel">Pebble Device Identifier</div>
+      <div class="card-desc" data-i18n="deviceDesc">Unique UUID provided by Pebble API for authentic device recognition.</div>
+      <div class="device-badge">
+        <span class="device-uuid-text" id="device_uuid_display">6084f459-8025-4f7a-8639-be3cfb9ae028</span>
+      </div>
+    </div>
+
+    <!-- Section 2: Cognitive Metrics Overview -->
+    <div class="section-title" data-i18n="secMetrics">Cognitive Performance</div>
+    <div class="card">
+      <div class="metric-grid">
+        <div class="metric-box">
+          <div class="metric-val" id="metric_max_nback">0-Back</div>
+          <div class="metric-name" data-i18n="maxLevel">Peak Level</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" id="metric_avg_acc">0%</div>
+          <div class="metric-name" data-i18n="avgAccuracy">Avg Acc</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-val" id="metric_total_sessions">0</div>
+          <div class="metric-name" data-i18n="totalSessions">Sessions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Training History -->
+    <div class="section-title">
+      <span data-i18n="secHistory">Training Sessions</span>
+      <div class="storage-status">
+        <span class="status-dot" id="status_dot"></span>
+        <span id="storage_mode_label">OPFS Sandboxed</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="history-list" id="history_list_container">
+        <div class="empty-state" data-i18n="emptyHistory">No training history recorded yet. Complete a session on your watch!</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div class="card-label" style="font-size: 13px;" data-i18n="storageTitle">OPFS Storage Engine</div>
+          <div class="card-desc" style="font-size: 11px;" data-i18n="storageDesc">Strictly saved inside browser sandboxed private files.</div>
+        </div>
+        <button class="btn-action-outline" onclick="clearLocalHistory()" data-i18n="clearBtn">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Action Bar -->
+  <div class="bottom-bar">
+    <div class="bottom-content">
+      <button class="btn btn-cancel" id="btn-cancel" data-i18n="closeBtn">Close</button>
+      <button class="btn btn-save" id="btn-save" data-i18n="saveBtn">Save Profile</button>
+    </div>
+  </div>
+
+  <script>
+    var APP_UUID_DEFAULT = '6084f459-8025-4f7a-8639-be3cfb9ae028';
+    var OPFS_PROFILE_FILE = 'player_profile.json';
+    var OPFS_HISTORY_FILE = 'game_history.json';
+
+    var i18n = {
+      en: {
+        title: "nBack Profile",
+        subtitle: "Working Memory Training History & Local OPFS Storage",
+        opfsErrorMsg: "Your mobile browser does not support the Origin Private File System (OPFS). Training history cannot be saved to private local files.",
+        secProfile: "Player Profile",
+        playerNameLabel: "Player Name",
+        playerNameDesc: "Your personal identifier stored strictly in local OPFS.",
+        deviceLabel: "Pebble Device Identifier",
+        deviceDesc: "Unique UUID provided by Pebble API for authentic device recognition.",
+        secMetrics: "Cognitive Performance",
+        maxLevel: "Peak Level",
+        avgAccuracy: "Avg Acc",
+        totalSessions: "Sessions",
+        secHistory: "Training Sessions",
+        emptyHistory: "No training history recorded yet. Complete a session on your watch!",
+        storageTitle: "OPFS Storage Engine",
+        storageDesc: "Strictly saved inside browser sandboxed private files.",
+        clearBtn: "Clear History",
+        clearConfirm: "Are you sure you want to clear all training history from OPFS?",
+        closeBtn: "Close",
+        saveBtn: "Save Profile",
+        savedToast: "Profile saved to OPFS successfully!",
+        clearedToast: "History cleared from OPFS.",
+        opfsNotSupportedToast: "OPFS is not supported on this browser."
+      },
+      ko: {
+        title: "nBack 프로필",
+        subtitle: "작업 기억력 훈련 기록 및 로컬 OPFS 파일 저장소",
+        opfsErrorMsg: "현재 모바일 브라우저가 OPFS(Origin Private File System)를 지원하지 않아 전용 로컬 파일 영속화가 불가능합니다.",
+        secProfile: "플레이어 프로필",
+        playerNameLabel: "플레이어 이름",
+        playerNameDesc: "로컬 OPFS 전용 파일에 영구 저장되는 사용자 식별 이름입니다.",
+        deviceLabel: "Pebble 기기 고유 식별자",
+        deviceDesc: "Pebble API에서 제공하는 고유 UUID 식별자입니다.",
+        secMetrics: "인지 훈련 성과 지표",
+        maxLevel: "최고 레벨",
+        avgAccuracy: "평균 정확도",
+        totalSessions: "훈련 세션",
+        secHistory: "훈련 세션 히스토리",
+        emptyHistory: "기록된 훈련 세션이 없습니다. 워치에서 n-Back 게임을 진행해 보세요!",
+        storageTitle: "OPFS 저장소 엔진",
+        storageDesc: "WebStorage 없이 브라우저 격리 파일 시스템에만 온전히 저장됩니다.",
+        clearBtn: "기록 초기화",
+        clearConfirm: "OPFS에 저장된 모든 훈련 기록을 삭제하시겠습니까?",
+        closeBtn: "닫기",
+        saveBtn: "프로필 저장",
+        savedToast: "프로필이 OPFS에 안전하게 저장되었습니다!",
+        clearedToast: "OPFS 훈련 기록이 삭제되었습니다.",
+        opfsNotSupportedToast: "브라우저가 OPFS를 지원하지 않습니다."
+      }
+    };
+
+    var currentLang = 'ko';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      var dict = i18n[lang] || i18n.en;
+      document.getElementById('lang-ko').classList.toggle('active', lang === 'ko');
+      document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+    }
+
+    function detectLanguage() {
+      var userLang = (navigator.language || navigator.userLanguage || 'ko').toLowerCase();
+      if (userLang.indexOf('ko') === 0) {
+        setLanguage('ko');
+      } else {
+        setLanguage('en');
+      }
+    }
+
+    function showToast(msg, duration) {
+      var toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast show';
+      setTimeout(function() {
+        toast.className = 'toast';
+      }, duration || 2500);
+    }
+
+    // Application State
+    var appState = {
+      playerName: '',
+      deviceUuid: APP_UUID_DEFAULT,
+      appUuid: APP_UUID_DEFAULT,
+      watchToken: '',
+      accountToken: '',
+      sessions: [],
+      opfsSupported: false,
+      opfsRoot: null
+    };
+
+    // Strict OPFS File System Layer (NO WebStorage fallback)
+    async function initOpfs() {
+      if ('storage' in navigator && typeof navigator.storage.getDirectory === 'function') {
+        try {
+          appState.opfsRoot = await navigator.storage.getDirectory();
+          appState.opfsSupported = true;
+          document.getElementById('opfs_error_alert').style.display = 'none';
+          document.getElementById('status_dot').className = 'status-dot';
+          document.getElementById('storage_badge').textContent = 'OPFS Native Engine';
+          document.getElementById('storage_mode_label').textContent = 'OPFS Sandboxed';
+          return true;
+        } catch (err) {
+          console.error('[OPFS] Failed to access root directory:', err);
+        }
+      }
+
+      appState.opfsSupported = false;
+      appState.opfsRoot = null;
+      document.getElementById('opfs_error_alert').style.display = 'block';
+      document.getElementById('status_dot').className = 'status-dot error';
+      document.getElementById('storage_badge').textContent = 'OPFS Unavailable';
+      document.getElementById('storage_mode_label').textContent = 'OPFS Error';
+      return false;
+    }
+
+    async function writeOpfsFile(fileName, dataObj) {
+      if (!appState.opfsSupported || !appState.opfsRoot) {
+        console.warn('[OPFS] Write rejected: OPFS not supported');
+        return false;
+      }
+      try {
+        var jsonStr = JSON.stringify(dataObj, null, 2);
+        var fileHandle = await appState.opfsRoot.getFileHandle(fileName, { create: true });
+        var writable = await fileHandle.createWritable();
+        await writable.write(jsonStr);
+        await writable.close();
+        return true;
+      } catch (err) {
+        console.error('[OPFS] Write error for ' + fileName + ':', err);
+        return false;
+      }
+    }
+
+    async function readOpfsFile(fileName) {
+      if (!appState.opfsSupported || !appState.opfsRoot) {
+        return null;
+      }
+      try {
+        var fileHandle = await appState.opfsRoot.getFileHandle(fileName, { create: false });
+        var file = await fileHandle.getFile();
+        var text = await file.text();
+        return JSON.parse(text);
+      } catch (err) {
+        // File does not exist or read failed
+        return null;
+      }
+    }
+
+    async function deleteOpfsFile(fileName) {
+      if (!appState.opfsSupported || !appState.opfsRoot) {
+        return false;
+      }
+      try {
+        await appState.opfsRoot.removeEntry(fileName);
+        return true;
+      } catch (err) {
+        console.warn('[OPFS] Remove entry error for ' + fileName + ':', err);
+        return false;
+      }
+    }
+
+    // Flag Bitmask Decoder
+    function getModalityBadges(bitmask) {
+      var flags = [
+        { bit: 1 << 1, label: 'POS' },
+        { bit: 1 << 2, label: 'SHP' },
+        { bit: 1 << 3, label: 'NUM' },
+        { bit: 1 << 4, label: 'LET' },
+        { bit: 1 << 5, label: 'COL' },
+        { bit: 1 << 6, label: 'VIB' },
+        { bit: 1 << 7, label: 'AUD' }
+      ];
+      var badges = [];
+      for (var i = 0; i < flags.length; i++) {
+        if (bitmask & flags[i].bit) {
+          badges.push(flags[i].label);
+        }
+      }
+      return badges.length > 0 ? badges : ['DUAL'];
+    }
+
+    // Render Metrics and History
+    function renderOverview() {
+      var sessions = appState.sessions;
+      var total = sessions.length;
+      var maxNBack = 0;
+      var sumAcc = 0;
+
+      for (var i = 0; i < total; i++) {
+        var s = sessions[i];
+        if (s.nback > maxNBack) maxNBack = s.nback;
+        sumAcc += (s.accuracy || 0);
+      }
+
+      var avgAcc = total > 0 ? Math.round(sumAcc / total) : 0;
+
+      document.getElementById('metric_max_nback').textContent = maxNBack > 0 ? (maxNBack + '-Back') : '0-Back';
+      document.getElementById('metric_avg_acc').textContent = avgAcc + '%';
+      document.getElementById('metric_total_sessions').textContent = total;
+
+      var container = document.getElementById('history_list_container');
+      if (total === 0) {
+        container.innerHTML = '<div class="empty-state">' + (i18n[currentLang].emptyHistory) + '</div>';
+        return;
+      }
+
+      var html = '';
+      for (var j = 0; j < Math.min(total, 50); j++) {
+        var item = sessions[j];
+        var dateStr = '';
+        if (item.timestamp) {
+          var d = new Date(item.timestamp * 1000);
+          dateStr = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+        } else {
+          dateStr = 'Recent';
+        }
+
+        var mods = getModalityBadges(item.modalities || 0);
+        var modPillsHtml = mods.map(function(m) {
+          return '<span class="mod-pill">' + m + '</span>';
+        }).join('');
+
+        var acc = item.accuracy || 0;
+        var hitsText = item.hits !== undefined ? (' (' + item.hits + '/' + item.totalTrials + ')') : '';
+
+        html += '<div class="history-item">' +
+          '<div class="history-left">' +
+            '<div class="history-title">' +
+              '<span class="nback-tag">' + (item.nback || 1) + '-Back</span>' +
+              '<div class="modality-badges">' + modPillsHtml + '</div>' +
+            '</div>' +
+            '<div class="history-meta">' + dateStr + hitsText + '</div>' +
+          '</div>' +
+          '<div class="history-score">' +
+            '<div class="accuracy-val">' + acc + '%</div>' +
+            '<div class="accuracy-bar-bg"><div class="accuracy-bar-fill" style="width:' + acc + '%;"></div></div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Merge sessions preventing duplicates by timestamp
+    function mergeSessions(newSessions) {
+      if (!Array.isArray(newSessions) || newSessions.length === 0) return;
+      var existingMap = {};
+      for (var i = 0; i < appState.sessions.length; i++) {
+        var key = appState.sessions[i].timestamp || ('s_' + i);
+        existingMap[key] = appState.sessions[i];
+      }
+
+      for (var j = 0; j < newSessions.length; j++) {
+        var nKey = newSessions[j].timestamp || ('new_' + j);
+        existingMap[nKey] = newSessions[j];
+      }
+
+      var merged = Object.values(existingMap);
+      merged.sort(function(a, b) {
+        return (b.timestamp || 0) - (a.timestamp || 0);
+      });
+      appState.sessions = merged;
+    }
+
+    // Load initial data from Hash & OPFS
+    async function loadData() {
+      var opfsOk = await initOpfs();
+
+      if (opfsOk) {
+        // Read Profile from OPFS
+        var profile = await readOpfsFile(OPFS_PROFILE_FILE);
+        if (profile && profile.playerName) {
+          appState.playerName = profile.playerName;
+          document.getElementById('player_name_input').value = profile.playerName;
+        }
+
+        // Read History from OPFS
+        var history = await readOpfsFile(OPFS_HISTORY_FILE);
+        if (history && Array.isArray(history.sessions)) {
+          appState.sessions = history.sessions;
+        }
+      }
+
+      // Parse Hash parameters from PebbleKit JS
+      try {
+        var hash = window.location.hash.substring(1);
+        if (hash) {
+          var decoded = decodeURIComponent(hash);
+          var params = JSON.parse(decoded);
+
+          if (params.appUuid) appState.appUuid = params.appUuid;
+          if (params.watchToken) appState.watchToken = params.watchToken;
+          if (params.accountToken) appState.accountToken = params.accountToken;
+
+          var displayId = appState.accountToken || appState.watchToken || appState.appUuid;
+          appState.deviceUuid = displayId;
+          document.getElementById('device_uuid_display').textContent = displayId;
+
+          if (params.sessions && Array.isArray(params.sessions)) {
+            mergeSessions(params.sessions);
+            if (opfsOk) {
+              await writeOpfsFile(OPFS_HISTORY_FILE, {
+                sessions: appState.sessions,
+                lastUpdated: new Date().toISOString()
+              });
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Error reading config hash:', e);
+      }
+
+      renderOverview();
+    }
+
+    // Save Profile Action to OPFS
+    async function saveProfile() {
+      var nameInput = document.getElementById('player_name_input');
+      var name = nameInput.value.trim();
+      appState.playerName = name;
+
+      if (!appState.opfsSupported) {
+        showToast(i18n[currentLang].opfsNotSupportedToast);
+        return false;
+      }
+
+      var profileData = {
+        playerName: name,
+        deviceUuid: appState.deviceUuid,
+        appUuid: appState.appUuid,
+        lastUpdated: new Date().toISOString()
+      };
+
+      var success = await writeOpfsFile(OPFS_PROFILE_FILE, profileData);
+      if (success) {
+        showToast(i18n[currentLang].savedToast);
+      }
+      return success;
+    }
+
+    // Clear History from OPFS
+    async function clearLocalHistory() {
+      if (confirm(i18n[currentLang].clearConfirm)) {
+        appState.sessions = [];
+        if (appState.opfsSupported) {
+          await writeOpfsFile(OPFS_HISTORY_FILE, { sessions: [], lastUpdated: new Date().toISOString() });
+        }
+        renderOverview();
+        showToast(i18n[currentLang].clearedToast);
+      }
+    }
+
+    // Bottom Bar Buttons
+    document.getElementById('btn-cancel').addEventListener('click', function() {
+      document.location = 'pebblejs://close';
+    });
+
+    document.getElementById('btn-save').addEventListener('click', async function() {
+      await saveProfile();
+      var configResult = {
+        playerName: appState.playerName,
+        syncToWatch: true
+      };
+      var returnUri = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(configResult));
+      document.location = returnUri;
+    });
+
+    // Run lifecycle
+    detectLanguage();
+    loadData();
+  </script>
+</body>
+</html>
