@@ -478,7 +478,7 @@
     <!-- Header -->
     <div class="header">
       <div class="header-top">
-        <div class="header-badge">Emery Platform • v1.99.99</div>
+        <div class="header-badge" id="header_version_badge">Emery Platform</div>
         <div class="lang-switcher">
           <button class="lang-btn" id="lang-ko" onclick="setLanguage('ko')">KO</button>
           <button class="lang-btn" id="lang-en" onclick="setLanguage('en')">EN</button>
@@ -594,7 +594,8 @@
         saveBtn: "Save Profile",
         savedToast: "Profile saved to OPFS successfully!",
         clearedToast: "History cleared from OPFS.",
-        opfsNotSupportedToast: "OPFS is not supported on this browser."
+        opfsNotSupportedToast: "OPFS is not supported on this browser.",
+        watchTokenMissing: "Pebble Watch Token missing. Please open settings from Pebble mobile app."
       },
       ko: {
         title: "nBack 프로필",
@@ -604,7 +605,7 @@
         playerNameLabel: "플레이어 이름",
         playerNameDesc: "로컬 OPFS 전용 파일에 영구 저장되는 사용자 식별 이름입니다.",
         deviceLabel: "Pebble 기기 고유 식별자",
-        deviceDesc: "Pebble API에서 제공하는 고유 UUID 식별자입니다.",
+        deviceDesc: "Pebble API에서 제공하는 시계 기기 고유 토큰(Watch Token)입니다.",
         secMetrics: "인지 훈련 성과 지표",
         maxLevel: "최고 레벨",
         avgAccuracy: "평균 정확도",
@@ -619,7 +620,8 @@
         saveBtn: "프로필 저장",
         savedToast: "프로필이 OPFS에 안전하게 저장되었습니다!",
         clearedToast: "OPFS 훈련 기록이 삭제되었습니다.",
-        opfsNotSupportedToast: "브라우저가 OPFS를 지원하지 않습니다."
+        opfsNotSupportedToast: "브라우저가 OPFS를 지원하지 않습니다.",
+        watchTokenMissing: "Pebble 시계 기기 고유 토큰이 없습니다. Pebble 모바일 앱의 설정 메뉴로 접속하세요."
       }
     };
 
@@ -658,21 +660,10 @@
       }, duration || 2500);
     }
 
-    // Unique Device Identifier Generator
-    function generateDeviceUuid() {
-      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-        return crypto.randomUUID();
-      }
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-    }
-
     // Application State
     var appState = {
       playerName: '',
-      deviceUuid: '',
+      watchToken: '',
       sessions: [],
       opfsSupported: false,
       opfsRoot: null
@@ -864,6 +855,9 @@
           appState.playerName = profile.playerName;
           document.getElementById('player_name_input').value = profile.playerName;
         }
+        if (profile && profile.watchToken) {
+          appState.watchToken = profile.watchToken;
+        }
 
         // Read History from OPFS
         var history = await readOpfsFile(OPFS_HISTORY_FILE);
@@ -872,7 +866,15 @@
         }
       }
 
-      var incomingDeviceUuid = '';
+      var incomingWatchToken = '';
+      var versionStr = '';
+
+      try {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('v')) {
+          versionStr = urlParams.get('v');
+        }
+      } catch (err) {}
 
       // Parse Hash parameters from PebbleKit JS
       try {
@@ -881,7 +883,13 @@
           var decoded = decodeURIComponent(hash);
           var params = JSON.parse(decoded);
 
-          if (params.deviceUuid) incomingDeviceUuid = params.deviceUuid;
+          if (params.version) {
+            versionStr = params.version;
+          }
+
+          if (params.watchToken && typeof params.watchToken === 'string' && params.watchToken.trim() !== '') {
+            incomingWatchToken = params.watchToken.trim();
+          }
 
           if (params.sessions && Array.isArray(params.sessions)) {
             mergeSessions(params.sessions);
@@ -897,19 +905,28 @@
         console.warn('Error reading config hash:', e);
       }
 
-      // Determine distinct device UUID:
-      // Priority 1: Passed from PebbleKit JS (watchToken / accountToken / PKJS device UUID)
-      // Priority 2: Stored in local OPFS profile
-      // Priority 3: Newly generated device UUID
-      var finalDeviceUuid = incomingDeviceUuid || (profile && profile.deviceUuid) || generateDeviceUuid();
-      appState.deviceUuid = finalDeviceUuid;
-      document.getElementById('device_uuid_display').textContent = finalDeviceUuid;
+      if (versionStr) {
+        document.getElementById('header_version_badge').textContent = 'Emery Platform • v' + versionStr;
+      }
 
-      // Auto-save device UUID in OPFS profile if missing
-      if (opfsOk && (!profile || !profile.deviceUuid)) {
+      // Authentic Pebble Watch Token validation
+      var finalWatchToken = incomingWatchToken || (profile && profile.watchToken) || '';
+      appState.watchToken = finalWatchToken;
+
+      var tokenDisplayEl = document.getElementById('device_uuid_display');
+      if (finalWatchToken) {
+        tokenDisplayEl.textContent = finalWatchToken;
+        tokenDisplayEl.style.color = 'var(--accent-cyan)';
+      } else {
+        tokenDisplayEl.textContent = 'Token Missing (Pebble App Required)';
+        tokenDisplayEl.style.color = 'var(--danger)';
+      }
+
+      // Update OPFS profile with the verified Pebble watch token
+      if (opfsOk && finalWatchToken) {
         await writeOpfsFile(OPFS_PROFILE_FILE, {
           playerName: appState.playerName,
-          deviceUuid: finalDeviceUuid,
+          watchToken: finalWatchToken,
           lastUpdated: new Date().toISOString()
         });
       }
@@ -928,9 +945,14 @@
         return false;
       }
 
+      if (!appState.watchToken) {
+        showToast(i18n[currentLang].watchTokenMissing, 3500);
+        return false;
+      }
+
       var profileData = {
         playerName: name,
-        deviceUuid: appState.deviceUuid,
+        watchToken: appState.watchToken,
         lastUpdated: new Date().toISOString()
       };
 
